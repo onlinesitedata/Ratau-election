@@ -970,6 +970,7 @@ document.querySelectorAll('.vd-t b,.sx-st b').forEach(b=>io.observe(b))}
 </style>
 <div id="wpm" hidden></div>
 <div id="wsm" hidden><div class="box"><h2 id="wst">स्लिप भेजें</h2><img id="wsi" alt="स्लिप"><div style="font-weight:700;font-size:.82rem;margin-top:6px">🖼 साथ भेजने वाला पोस्टर चुनें:</div><div class="wpp" id="wpp"></div><input id="wsp" type="tel" inputmode="numeric" maxlength="10" placeholder="व्हाट्सऐप नंबर (वैकल्पिक, 10 अंक)">
+<label class="ck"><input type="checkbox" id="wsf" checked> 📄 परिवार की A4 PDF भी साथ भेजें (प्रिंट के लिए)</label>
 <label class="ck"><input type="checkbox" id="wsa" checked> भेजने के बाद अगला बाकी परिवार खोलें</label>
 <button class="b g" id="wsh" style="width:100%">📲 व्हाट्सऐप / शेयर से भेजें</button>
 <button class="b" id="wsc" style="width:100%">💬 इस नंबर पर व्हाट्सऐप चैट खोलें (इमेज सेव होगी)</button>
@@ -1087,16 +1088,16 @@ function msg(h,P){const WD=WARD[h.part]||{},nm=P.nm||D.name;return'नमस्�
 async function openSend(h,p){const P=pn();if(!P.sy&&!P.ph&&!confirm('आपका चिह्न/फ़ोटो नहीं जुड़ा है। बिना चिह्न के स्लिप बनाएँ?\n\n(Cancel दबाकर पर्ची टैब में चिह्न जोड़ें)'))return;
  toast('स्लिप बन रही है…');let blob;try{blob=await render(h,P)}catch(e){return toast('स्लिप नहीं बन सकी: '+e)}
  if(cur&&cur.url)URL.revokeObjectURL(cur.url);const fn='voter-slip-'+h.part+'-'+String(h.house).replace(/[^A-Za-z0-9]/g,'')+'.jpg';
- const pf=await pfile();cur={pf,h,blob,url:URL.createObjectURL(blob),file:new File([blob],fn,{type:'image/jpeg'}),msg:msg(h,P),fn};
+ const pf=await pfile();let pdf=null;try{const pb=await pdfBuild(P,{hs:[h],pages:Math.ceil(h.mem.length/15)},()=>{});pdf=new File([pb],'parchi-makan-'+h.part+'-'+String(h.house).replace(/[^A-Za-z0-9]/g,'')+'.pdf',{type:'application/pdf'})}catch(e){}cur={pdf,pf,h,blob,url:URL.createObjectURL(blob),file:new File([blob],fn,{type:'image/jpeg'}),msg:msg(h,P),fn};
  Q('#wst').textContent='मकान '+h.house+' · '+sn(h.sec)+' · '+h.mem.length+' मतदाता';Q('#wsi').src=cur.url;Q('#wsp').value=p!=null&&p!==''?p:((S[h.k]||{}).p||'');pdraw();Q('#wsm').hidden=false}
 const closeM=()=>{Q('#wsm').hidden=true};
-const dl=(u,n)=>{const a=document.createElement('a');a.href=u;a.download=n;document.body.appendChild(a);a.click();a.remove()};const saveImg=()=>{dl(cur.url,cur.fn);if(cur.pf)setTimeout(()=>dl(URL.createObjectURL(cur.pf),cur.pf.name),300)};
+const dl=(u,n)=>{const a=document.createElement('a');a.href=u;a.download=n;document.body.appendChild(a);a.click();a.remove()};const saveImg=()=>{dl(cur.url,cur.fn);if(cur.pf)setTimeout(()=>dl(URL.createObjectURL(cur.pf),cur.pf.name),300);if(cur.pdf&&Q('#wsf').checked)setTimeout(()=>dl(URL.createObjectURL(cur.pdf),cur.pdf.name),600)};
 const chat=()=>{const p=cph(Q('#wsp').value);window.open('https://wa.me/'+(okp(p)?'91'+p:'')+'?text='+encodeURIComponent(cur.msg),'_blank')};
 async function done(){const h=cur.h,p=cph(Q('#wsp').value),adv=Q('#wsa').checked;closeM();await markSent([h.k],1,okp(p)?p:null);toast('✅ भेजा चिह्नित हो गया');
  if(adv){const nx=fl('p').find(x=>x.k!==h.k);if(nx)openSend(nx);else toast('🎉 सभी परिवारों को स्लिप भेजी जा चुकी')}}
 Q('#wsx').onclick=closeM;Q('#wsd').onclick=()=>{if(cur)saveImg()};Q('#wsk').onclick=()=>{if(cur)done()};
 Q('#wsc').onclick=()=>{if(!cur)return;const p=cph(Q('#wsp').value);if(!okp(p))return toast('पहले सही 10 अंक का नंबर लिखें');saveImg();setTimeout(chat,400);toast('इमेज सेव हुई — चैट में अटैच करके भेजें, फिर "✅ भेज दिया" दबाएँ')};
-Q('#wsh').onclick=async()=>{if(!cur)return;const fs=[cur.file].concat(cur.pf?[cur.pf]:[]);if(navigator.canShare&&navigator.canShare({files:fs})){try{await navigator.share({files:fs,text:cur.msg,title:'वोटर पर्ची'});await done()}catch(e){if(!e||e.name!=='AbortError')toast('शेयर नहीं हो सका — "इमेज सेव" करके भेजें')}}
+Q('#wsh').onclick=async()=>{if(!cur)return;const fs=[cur.file].concat(cur.pf?[cur.pf]:[],cur.pdf&&Q('#wsf').checked?[cur.pdf]:[]);if(navigator.canShare&&navigator.canShare({files:fs})){try{await navigator.share({files:fs,text:cur.msg,title:'वोटर पर्ची'});await done()}catch(e){if(!e||e.name!=='AbortError')toast('शेयर नहीं हो सका — "इमेज सेव" करके भेजें')}}
  else{toast('यह ब्राउज़र सीधे इमेज-शेयर नहीं करता — इमेज सेव होगी और व्हाट्सऐप खुलेगा');saveImg();setTimeout(chat,400)}};
 
 /* ---------- सूची निर्यात ---------- */
