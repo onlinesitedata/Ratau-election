@@ -1012,6 +1012,7 @@ function fl(mode){return HL.filter(h=>{if(flt.w&&h.part!=flt.w)return false;if(f
 function draw(){const w=Q('#t_w'),P=pn(),ws=[...new Set(V.map(v=>+v.part))].sort((a,b)=>a-b);
  w.innerHTML=`<div class="box"><h2>📲 मकान-वार वोटर स्लिप — व्हाट्सऐप</h2><p class="note">हर परिवार (मकान) की एक स्लिप बनती है जिस पर आपका नाम, फ़ोटो, चुनाव चिह्न और सभी सदस्यों के वार्ड/क्रमांक/EPIC, मतदान केंद्र व कमरा नंबर होते हैं। भेजते ही परिवार "भेजा" में चला जाता है।</p>
  <div class="wps"><span class="${P.ph?'g':''}">📷 फ़ोटो ${P.ph?'✅':'जोड़ें'}</span><span class="${P.sy?'g':''}">🏷 चिह्न ${P.sy?'✅':'जोड़ें'}</span><span class="${P.nm||D.name?'g':''}">👤 ${H(P.nm||D.name)}</span></div>
+ <div class="row2" style="margin:6px 0"><input id="wnm" placeholder="पर्ची पर छपने वाला पूरा नाम" maxlength="60" value="${H(P.nm||'')}" autocomplete="off"><input id="wsn" placeholder="चुनाव चिह्न का नाम (जैसे: पंजा)" maxlength="30" value="${H(P.sn||'')}" autocomplete="off"></div><small class="note" id="wnn">नाम खाली छोड़ने पर रजिस्टर्ड नाम "${H(D.name)}" छपेगा।</small>
  ${(!P.ph||!P.sy)?'<button class="b l s" id="wgz">🧾 पर्ची टैब में फ़ोटो/चिह्न जोड़ें</button>':''}
  ${srvErr?'<div class="box warn" style="margin:6px 0">⚠ सर्वर से स्थिति नहीं मिली ('+H(srvErr)+') — अभी फ़ोन में सेव रहेगा, बाद में अपने-आप जुड़ जाएगा।</div>':''}</div>
  <div id="wsum"></div>
@@ -1019,7 +1020,9 @@ function draw(){const w=Q('#t_w'),P=pn(),ws=[...new Set(V.map(v=>+v.part))].sort
  <input id="wfq" placeholder="नाम / मकान नंबर से खोजें" value="${H(flt.q)}" autocomplete="off">
  <div class="bar"><button class="b g s" id="wnx">▶ अगला बाकी परिवार भेजें</button><button class="b l s" id="wcb">⬇ बाकी CSV</button><button class="b l s" id="wcs">⬇ भेजे CSV</button><button class="b l s" id="wsh2">📤 बाकी सूची शेयर</button><button class="b g s" id="wpdfb">📄 A4 PDF (15 पर्ची/पेज)</button></div>
  <div id="wl"></div><button class="b l" id="wmore" hidden>और दिखाएँ ▾</button></div>`;
- if(Q('#wgz'))Q('#wgz').onclick=()=>tab('z');
+ if(Q('#wgz'))Q('#wgz').onclick=()=>tab('z');const sv=(k,e)=>{const p=pn();p[k]=e.target.value.replace(/\s+/g,' ').trim();try{localStorage.setItem('rt_cp_'+D.key,JSON.stringify(p))}catch(x){toast('सेव नहीं हो सका')}const n=Q('#wnn');if(n&&k==='nm')n.textContent=p.nm?'✅ पर्ची पर यह नाम छपेगा: '+p.nm:'नाम खाली छोड़ने पर रजिस्टर्ड नाम "'+D.name+'" छपेगा।'};
+ Q('#wnm').onchange=e=>sv('nm',e);Q('#wsn').onchange=e=>sv('sn',e);Q('#wnm').oninput=e=>{const p=pn();p.nm=e.target.value.replace(/\s+/g,' ').trim();try{localStorage.setItem('rt_cp_'+D.key,JSON.stringify(p))}catch(x){}};Q('#wsn').oninput=e=>{const p=pn();p.sn=e.target.value.replace(/\s+/g,' ').trim();try{localStorage.setItem('rt_cp_'+D.key,JSON.stringify(p))}catch(x){}};
+
  Q('#wfw').onchange=e=>{flt.w=e.target.value;flt.n=30;ref()};Q('#wfs').onchange=e=>{flt.s=e.target.value;flt.n=30;ref()};
  let tm;Q('#wfq').oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{flt.q=e.target.value;flt.n=30;ref()},200)};
  Q('#wmore').onclick=()=>{flt.n+=30;list()};
