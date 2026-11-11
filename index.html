@@ -956,6 +956,7 @@ document.querySelectorAll('.vd-t b,.sx-st b').forEach(b=>io.observe(b))}
 }catch(e){console.error('extras',e)}})();
 </script>
 <style>
+#wpm{position:fixed;inset:0;background:#0f172acc;z-index:61;display:flex;align-items:flex-start;justify-content:center;padding:12px;overflow:auto}#wpm[hidden]{display:none!important}
 #wsm{position:fixed;inset:0;background:#0f172acc;z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:12px;overflow:auto}#wsm[hidden]{display:none!important}
 #wsm .box{width:100%;max-width:460px;margin:auto}#wsi{width:100%;border-radius:12px;border:1px solid #e0e7ff;margin:6px 0;display:block}
 .wh{background:#fff;border:1px solid #e8ecf8;border-left:5px solid #f59e0b;border-radius:16px;padding:10px;margin:8px 0;box-shadow:0 3px 10px #4338ca12}
@@ -967,6 +968,7 @@ document.querySelectorAll('.vd-t b,.sx-st b').forEach(b=>io.observe(b))}
 .wps{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.wps span{font-size:.78rem;padding:3px 10px;border-radius:99px;background:#fef3c7;color:#78350f;font-weight:700}.wps span.g{background:#dcfce7;color:#166534}
 .wpp{display:flex;gap:6px;overflow-x:auto;margin:6px 0;padding:2px}.wpp img{width:64px;height:64px;object-fit:cover;border-radius:10px;border:3px solid transparent;flex:none;cursor:pointer;background:#eef}.wpp img.on{border-color:#12a150}.wpp .no{flex:none;width:64px;height:64px;border-radius:10px;border:3px solid transparent;background:#f1f5f9;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer}.wpp .no.on{border-color:#12a150}
 </style>
+<div id="wpm" hidden></div>
 <div id="wsm" hidden><div class="box"><h2 id="wst">स्लिप भेजें</h2><img id="wsi" alt="स्लिप"><div style="font-weight:700;font-size:.82rem;margin-top:6px">🖼 साथ भेजने वाला पोस्टर चुनें:</div><div class="wpp" id="wpp"></div><input id="wsp" type="tel" inputmode="numeric" maxlength="10" placeholder="व्हाट्सऐप नंबर (वैकल्पिक, 10 अंक)">
 <label class="ck"><input type="checkbox" id="wsa" checked> भेजने के बाद अगला बाकी परिवार खोलें</label>
 <button class="b g" id="wsh" style="width:100%">📲 व्हाट्सऐप / शेयर से भेजें</button>
@@ -1015,14 +1017,14 @@ function draw(){const w=Q('#t_w'),P=pn(),ws=[...new Set(V.map(v=>+v.part))].sort
  <div id="wsum"></div>
  <div class="box"><div class="wmo" id="wmo"></div><div class="row2"><select id="wfw"><option value="">सभी वार्ड</option>${ws.map(x=>`<option value="${x}" ${flt.w==x?'selected':''}>वार्ड ${x}</option>`).join('')}</select><select id="wfs"><option value="">सभी मोहल्ले</option>${SECS.map(s=>`<option value="${H(s)}" ${flt.s===s?'selected':''}>${H(sn(s))}</option>`).join('')}</select></div>
  <input id="wfq" placeholder="नाम / मकान नंबर से खोजें" value="${H(flt.q)}" autocomplete="off">
- <div class="bar"><button class="b g s" id="wnx">▶ अगला बाकी परिवार भेजें</button><button class="b l s" id="wcb">⬇ बाकी CSV</button><button class="b l s" id="wcs">⬇ भेजे CSV</button><button class="b l s" id="wsh2">📤 बाकी सूची शेयर</button></div>
+ <div class="bar"><button class="b g s" id="wnx">▶ अगला बाकी परिवार भेजें</button><button class="b l s" id="wcb">⬇ बाकी CSV</button><button class="b l s" id="wcs">⬇ भेजे CSV</button><button class="b l s" id="wsh2">📤 बाकी सूची शेयर</button><button class="b g s" id="wpdfb">📄 A4 PDF (15 पर्ची/पेज)</button></div>
  <div id="wl"></div><button class="b l" id="wmore" hidden>और दिखाएँ ▾</button></div>`;
  if(Q('#wgz'))Q('#wgz').onclick=()=>tab('z');
  Q('#wfw').onchange=e=>{flt.w=e.target.value;flt.n=30;ref()};Q('#wfs').onchange=e=>{flt.s=e.target.value;flt.n=30;ref()};
  let tm;Q('#wfq').oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{flt.q=e.target.value;flt.n=30;ref()},200)};
  Q('#wmore').onclick=()=>{flt.n+=30;list()};
  Q('#wnx').onclick=()=>{const a=fl('p');if(!a.length)return toast('🎉 इस फ़िल्टर में कोई परिवार बाकी नहीं');openSend(a[0])};
- Q('#wcb').onclick=()=>csv('p');Q('#wcs').onclick=()=>csv('s');Q('#wsh2').onclick=pshare;ref()}
+ Q('#wcb').onclick=()=>csv('p');Q('#wcs').onclick=()=>csv('s');Q('#wsh2').onclick=pshare;Q('#wpdfb').onclick=pdfOpen;ref()}
 function ref(){sum();list()}
 function sum(){const N=HL.length;let sent=0,sv=0,vt=0;HL.forEach(h=>{vt+=h.mem.length;if(S[h.k]&&S[h.k].s){sent++;sv+=h.mem.length}});const pd=N-sent,p=Math.round(sent*100/N);
  const mo={};HL.forEach(h=>{const o=mo[h.sec]||(mo[h.sec]={n:0,s:0});o.n++;if(S[h.k]&&S[h.k].s)o.s++});
@@ -1101,6 +1103,69 @@ function csv(mode){const a=fl(mode),hd=['क्र.','वार्ड','मो�
  e.href=URL.createObjectURL(new Blob([t],{type:'text/csv;charset=utf-8'}));e.download=(mode=='p'?'slip-baki':'slip-bheje')+'.csv';document.body.appendChild(e);e.click();e.remove()}
 async function pshare(){const a=fl('p').slice(0,200),tx='⏳ स्लिप भेजना बाकी — '+D.name+' ('+fl('p').length+' परिवार)\n'+a.map((h,i)=>(i+1)+'. मकान '+h.house+' · '+sn(h.sec)+' · वार्ड '+h.part+' · '+xs(h.head.name)+' ('+h.mem.length+')'+((S[h.k]||{}).p?' · '+S[h.k].p:'')).join('\n');
  if(navigator.share){try{await navigator.share({text:tx});return}catch(e){}}try{await navigator.clipboard.writeText(tx);toast('सूची कॉपी हो गई')}catch(e){toast('कॉपी नहीं हो सकी, CSV लें')}}
+
+/* ---------- A4 PDF: 15 पर्ची प्रति पेज ---------- */
+function mkpdf(jp){const enc=new TextEncoder(),parts=[],off=[];let len=0;const add=x=>{const b=typeof x==='string'?enc.encode(x):x;parts.push(b);len+=b.length};
+ const obj=(n,f)=>{off[n]=len;add(n+' 0 obj\n');f();add('\nendobj\n')},N=jp.length;add('%PDF-1.4\n');
+ obj(1,()=>add('<</Type/Catalog/Pages 2 0 R>>'));obj(2,()=>add('<</Type/Pages/Count '+N+'/Kids['+jp.map((_,i)=>(3+3*i)+' 0 R').join(' ')+']>>'));
+ jp.forEach((j,i)=>{const p=3+3*i,cs='q 595.28 0 0 841.89 0 0 cm /Im0 Do Q';
+  obj(p,()=>add('<</Type/Page/Parent 2 0 R/MediaBox[0 0 595.28 841.89]/Resources<</XObject<</Im0 '+(p+2)+' 0 R>>>>/Contents '+(p+1)+' 0 R>>'));
+  obj(p+1,()=>add('<</Length '+cs.length+'>>\nstream\n'+cs+'\nendstream'));
+  obj(p+2,()=>{add('<</Type/XObject/Subtype/Image/Width '+j.w+'/Height '+j.h+'/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length '+j.b.length+'>>\nstream\n');add(j.b);add('\nendstream')})});
+ const xr=len,tot=3+3*N;add('xref\n0 '+tot+'\n0000000000 65535 f \n');for(let i=1;i<tot;i++)add(String(off[i]).padStart(10,'0')+' 00000 n \n');
+ add('trailer\n<</Size '+tot+'/Root 1 0 R>>\nstartxref\n'+xr+'\n%%EOF');return new Blob(parts,{type:'application/pdf'})}
+function slip1(c,X,Y,w,h,v,P,ph,sy){const u=w/780,s=n=>Math.round(n*u),WD=WARD[v.part]||{},nm=P.nm||D.name;c.save();c.translate(X,Y);
+ rr(c,0,0,w,h,s(26));c.fillStyle='#fff';c.fill();c.save();rr(c,0,0,w,h,s(26));c.clip();
+ const g=c.createLinearGradient(0,0,w,s(175));g.addColorStop(0,'#1e1b4b');g.addColorStop(.55,'#4338ca');g.addColorStop(1,'#7c3aed');c.fillStyle=g;c.fillRect(0,0,w,s(175));
+ const r2=c.createLinearGradient(0,0,w,0);r2.addColorStop(0,'#f59e0b');r2.addColorStop(.5,'#fff');r2.addColorStop(1,'#16a34a');c.fillStyle=r2;c.fillRect(0,s(175),w,s(8));
+ c.fillStyle='#fffbeb';c.fillRect(0,s(183),w,h-s(183));c.restore();
+ const cr=s(60);circ(c,ph,s(82),s(88),cr,'👤',false);circ(c,sy,w-s(82),s(88),cr,'🏷',true);
+ c.textAlign='center';c.textBaseline='alphabetic';c.fillStyle='#fde68a';c.fillText(ft(c,'जिला परिषद सदस्य चुनाव',s(430),s(27),'700',12),w/2,s(52));
+ c.fillStyle='#fff';c.fillText(ft(c,nm,s(430),s(54),'800',16),w/2,s(112));
+ if(P.sn){c.fillStyle='#fcd34d';c.fillText(ft(c,'चिह्न: '+P.sn,s(430),s(32),'800',12),w/2,s(155))}
+ c.fillStyle='#1e1b4b';c.fillText(ft(c,v.name,w-s(50),s(48),'800',14),w/2,s(240));
+ c.fillStyle='#475569';c.fillText(ft(c,v.rt+': '+v.rel+' · आयु '+v.age+' · '+v.g,w-s(50),s(28),'600',12),w/2,s(282));
+ rr(c,s(24),s(300),w-s(48),s(58),s(29));c.fillStyle='#e0e7ff';c.fill();c.fillStyle='#3730a3';
+ c.fillText(ft(c,'वार्ड '+v.part+' · क्र. '+v.sn+' · मकान '+v.house,w-s(70),s(33),'800',12),w/2,s(340));
+ c.fillStyle='#334155';c.fillText(ft(c,'EPIC: '+(v.ep||'—')+' · '+sn(v.sec),w-s(50),s(27),'700',12),w/2,s(388));
+ rr(c,s(20),s(408),w-s(40),s(150),s(22));const fg=c.createLinearGradient(0,s(408),w,s(408));fg.addColorStop(0,'#fde68a');fg.addColorStop(1,'#fbbf24');c.fillStyle=fg;c.fill();
+ c.fillStyle='#422006';c.fillText(ft(c,'🏫 मतदान केंद्र '+(WD.b||'–')+' · कमरा नं. '+(WD.room||'–'),w-s(60),s(34),'800',12),w/2,s(455));
+ c.fillText(ft(c,WD.school||'',w-s(60),s(26),'600',11),w/2,s(493));
+ c.fillText(ft(c,'मतदान 14.11.2026 (शनिवार) · प्रातः 7 – सायं 6',w-s(60),s(27),'800',11),w/2,s(535));
+ c.fillStyle='#4338ca';c.fillText(ft(c,'🙏 आपका अमूल्य वोट — '+nm+(P.sn?' ('+P.sn+')':''),w-s(40),s(28),'800',11),w/2,s(600));
+ c.fillStyle='#64748b';c.fillText(ft(c,'पहचान-पत्र (EPIC/आधार) साथ लाएँ',w-s(40),s(23),'600',10),w/2,s(640));
+ rr(c,0,0,w,h,s(26));c.lineWidth=2;c.strokeStyle='#c7d2fe';c.stroke();c.restore()}
+async function pdfParts(P,hs,perPart){const ps=[];let cu=[],n=0;hs.forEach(h=>{if(cu.length&&n+h.mem.length>perPart){ps.push({hs:cu,n});cu=[];n=0}cu.push(h);n+=h.mem.length});if(cu.length)ps.push({hs:cu,n});
+ ps.forEach(p=>p.pages=Math.ceil(p.n/15));return ps}
+async function pdfBuild(P,part,prog){try{await Promise.all(['400','700','800'].map(w=>document.fonts.load(w+' 24px Mukta','अआक')))}catch(e){}
+ const [ph,sy]=await Promise.all([img(P.ph),img(P.sy)]),vs=[];part.hs.forEach(h=>h.mem.forEach(v=>vs.push(v)));
+ const PW=1654,PH=2339,M=47,cw=(PW-2*M)/3,ch=(PH-2*M)/5,G=9,jp=[];
+ for(let pg=0;pg<part.pages;pg++){const cv=document.createElement('canvas');cv.width=PW;cv.height=PH;const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,PW,PH);
+  c.setLineDash([10,8]);c.strokeStyle='#94a3b8';c.lineWidth=1.5;for(let i=0;i<=3;i++){c.beginPath();c.moveTo(M+i*cw,M-18);c.lineTo(M+i*cw,PH-M+18);c.stroke()}for(let j=0;j<=5;j++){c.beginPath();c.moveTo(M-18,M+j*ch);c.lineTo(PW-M+18,M+j*ch);c.stroke()}c.setLineDash([]);
+  for(let k=0;k<15;k++){const v=vs[pg*15+k];if(!v)break;slip1(c,M+(k%3)*cw+G,M+Math.floor(k/3)*ch+G,cw-2*G,ch-2*G,v,P,ph,sy)}
+  const b=await new Promise(r=>cv.toBlob(r,'image/jpeg',.85));jp.push({b:new Uint8Array(await b.arrayBuffer()),w:PW,h:PH});cv.width=cv.height=1;
+  prog(pg+1,part.pages);await new Promise(r=>setTimeout(r,0))}
+ return mkpdf(jp)}
+let pdfP=[],pdfPer=60;
+function pdfOpen(){const hs=fl();if(!hs.length)return toast('इस फ़िल्टर में कोई परिवार नहीं');const P=pn();
+ if(!P.sy&&!P.ph&&!confirm('आपका चिह्न/फ़ोटो नहीं जुड़ा है। बिना चिह्न के पर्ची बनाएँ?'))return;pdfShow(hs,P)}
+async function pdfShow(hs,P){const m=Q('#wpm'),tv=hs.reduce((a,h)=>a+h.mem.length,0);pdfP=await pdfParts(P,hs,pdfPer);
+ m.innerHTML=`<div class="box" style="width:100%;max-width:480px;margin:auto"><h2>📄 A4 पर्ची PDF — 15 प्रति पेज</h2><p class="note">${hs.length} परिवार · ${tv} पर्चियाँ (हर वोटर की अलग पर्ची) · प्रिंट करके काटने की लाइनें बनी हैं। सूची आपके चुने फ़िल्टर (बाकी/भेजे/वार्ड/मोहल्ला) के अनुसार है।</p>
+ <input id="wpph" type="tel" inputmode="numeric" maxlength="10" placeholder="व्हाट्सऐप नंबर (वैकल्पिक — सीधे चैट खोलने के लिए)"><label class="ck"><input type="checkbox" id="wpck" checked> शेयर होने के बाद इन परिवारों को "भेजा" चिह्नित करें</label>
+ <label class="note">एक PDF में पेज: <select id="wpn">${[[2,'2 पेज (30 पर्ची) · छोटी फ़ाइल'],[4,'4 पेज (60 पर्ची) · सुझावित'],[10,'10 पेज (150 पर्ची)']].map(x=>`<option value="${x[0]*15}" ${pdfPer==x[0]*15?'selected':''}>${x[1]}</option>`).join('')}</select></label>
+ <div id="wpl">${pdfP.map((p,i)=>`<div class="wh" id="wpr${i}"><div class="wht"><span><b>भाग ${i+1}</b> · ${p.hs.length} परिवार · ${p.n} पर्ची · ${p.pages} पेज</span></div><small class="note">मकान ${H(p.hs[0].house)} (${H(sn(p.hs[0].sec))}) से ${H(p.hs[p.hs.length-1].house)} (${H(sn(p.hs[p.hs.length-1].sec))}) तक</small><div class="whr" id="wpb${i}"><button class="b g s" data-pb="${i}">⚙ PDF तैयार करें</button></div></div>`).join('')}</div>
+ <button class="b g" id="wpall" style="width:100%">⚙ सभी भाग तैयार करें</button>
+ <button class="b l" id="wpx" style="width:100%">बंद करें</button></div>`;m.hidden=false;
+ Q('#wpx').onclick=()=>{m.hidden=true};Q('#wpall').onclick=async()=>{for(const bt of [...m.querySelectorAll('[data-pb]')]){bt.click();await new Promise(r=>{const t=setInterval(()=>{if(pdfP[+bt.dataset.pb].blob||/नहीं बन सका/.test(Q('#wpb'+bt.dataset.pb).textContent)){clearInterval(t);r()}},300)})}};Q('#wpn').onchange=e=>{pdfPer=+e.target.value;pdfShow(hs,P)};
+ m.onclick=async e=>{const b=e.target.closest('[data-pb]'),sh=e.target.closest('[data-ps]'),dl=e.target.closest('[data-pd]'),mk=e.target.closest('[data-pm]');
+  if(b){const i=+b.dataset.pb,p=pdfP[i],bx=Q('#wpb'+i);bx.innerHTML='<span class="note">⏳ बन रहा है…</span>';
+   try{const bl=await pdfBuild(P,p,(a,t)=>bx.innerHTML='<span class="note">⏳ पेज '+a+'/'+t+'…</span>');p.blob=bl;p.fn='voter-slips-bhag'+(i+1)+'.pdf';p.file=new File([bl],p.fn,{type:'application/pdf'});
+    bx.innerHTML=`<button class="b g" data-ps="${i}" style="flex:1 1 100%">📲 व्हाट्सऐप पर भेजें</button><button class="b l s" data-pd="${i}">⬇ डाउनलोड</button><button class="b l s" data-pm="${i}">✔ भेजा चिह्नित करें</button><small class="note" style="width:100%">${(bl.size/1048576).toFixed(1)} MB</small>`}catch(er){bx.innerHTML='<span class="note">⚠ नहीं बन सका: '+H(String(er))+'</span><button class="b g s" data-pb="'+i+'">फिर कोशिश</button>'}}
+  if(dl){const p=pdfP[+dl.dataset.pd],a=document.createElement('a');a.href=URL.createObjectURL(p.blob);a.download=p.fn;document.body.appendChild(a);a.click();a.remove()}
+  if(sh){const i=+sh.dataset.ps,p=pdfP[i],ph=cph(Q('#wpph').value),tx='🙏 मतदाता पर्ची — भाग '+(i+1)+' ('+p.pages+' पेज, '+p.n+' पर्ची)\n'+(P.nm||D.name)+(P.sn?' · चिह्न: '+P.sn:'')+'\nA4 पर 15 पर्ची प्रति पेज — प्रिंट करके काटकर घर-घर बाँटें।\n🙏 आपका अमूल्य वोट देकर विजयी बनाएँ।',auto=()=>{if(Q('#wpck').checked)markSent(p.hs.map(h=>h.k),1,okp(ph)?ph:null).then(()=>toast('✅ '+p.hs.length+' परिवार "भेजा" चिह्नित'))};
+   if(navigator.canShare&&navigator.canShare({files:[p.file]})){try{await navigator.share({files:[p.file],text:tx,title:p.fn});auto()}catch(er){if(!er||er.name!=='AbortError')toast('शेयर नहीं हो सका — डाउनलोड करके भेजें')}}
+   else{const a=document.createElement('a');a.href=URL.createObjectURL(p.blob);a.download=p.fn;document.body.appendChild(a);a.click();a.remove();toast('PDF सेव हुई — व्हाट्सऐप खुलेगा, उसमें 📎 से यह PDF चुनकर भेजें');setTimeout(()=>window.open('https://wa.me/'+(okp(ph)?'91'+ph:'')+'?text='+encodeURIComponent(tx),'_blank'),900)}}
+  if(mk){const p=pdfP[+mk.dataset.pm];if(confirm(p.hs.length+' परिवारों को "भेजा" चिह्नित करें?')){await markSent(p.hs.map(h=>h.k),1,null);toast('✅ चिह्नित हो गए');mk.disabled=true}}}}
 }catch(e){console.error('whatsapp slips',e)}})();
 </script>
 
